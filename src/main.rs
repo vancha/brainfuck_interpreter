@@ -16,12 +16,12 @@ struct TuringMachine {
     //byte in size
     tape: [u8; 30000],
     //the pointer that indicates where the turing machines head is on the tape
-    pointer: u128,
+    pointer: usize,
     //the program itself, represented as a long list of instructions
     program: Vec<Instruction>,
     //the program counter, that indicates which instruction in the program we are currently
     //executing
-    program_counter: u128,
+    program_counter: usize,
 }
 
 impl TuringMachine {
@@ -50,19 +50,19 @@ impl TuringMachine {
     ///executes the "Increment" instruction on the turing machine, does nothing more than Increment 
     ///the value of the current cell being pointed at by the pointer or head
     fn increment(&mut self) {
-        self.tape[self.pointer as usize] = self.tape[self.pointer as usize].wrapping_add(1);
+        self.tape[self.pointer] = self.tape[self.pointer].wrapping_add(1);
         self.program_counter += 1;
     }
     ///executes the "Decrement" instruction on the turing machine, does nothing more than Decrement
     ///the value of the current cell being pointed at by the pointer or head
     fn decrement(&mut self) {
-        self.tape[self.pointer as usize] = self.tape[self.pointer as usize].wrapping_sub(1);
+        self.tape[self.pointer] = self.tape[self.pointer].wrapping_sub(1);
         self.program_counter += 1;
     }
     ///executes the "Write" instruction on the turing machine, prints the value of the current cell
     ///being pointed at by the pointer
     fn write(&mut self) {
-        print!("{}", self.tape[self.pointer as usize] as char);
+        print!("{}", self.tape[self.pointer] as char);
         self.program_counter += 1;
     }
 
@@ -71,10 +71,10 @@ impl TuringMachine {
         self.program_counter += 1;
     }
     ///gets the maching closing bracket for the opening bracket indicated by "bracket_to_match".
-    fn get_matching_closing_bracket(&self, bracket_to_match: u128) -> u128 {
+    fn get_matching_closing_bracket(&self, bracket_to_match: usize) -> usize {
         let mut stack: Vec<Instruction> = vec![];
         let mut return_token = 0;
-        for token in (bracket_to_match as usize)..self.program.len() {
+        for token in (bracket_to_match)..self.program.len() {
             match self.program[token] {
                 Instruction::JumpToOpen => {
                     if stack.is_empty() {
@@ -90,13 +90,13 @@ impl TuringMachine {
                 _ => { /*ignoring*/ }
             }
         }
-        return_token as u128
+        return_token
     }
     ///gets the matching opening bracket for the closing bracket indicated by "bracket_to_match"
-    fn get_matching_opening_bracket(&self, bracket_to_match: u128) -> u128 {
+    fn get_matching_opening_bracket(&self, bracket_to_match: usize) -> usize {
         let mut stack: Vec<Instruction> = vec![];
         let mut return_token = 0;
-        for token in (0..(bracket_to_match as usize)).rev() {
+        for token in (0..(bracket_to_match)).rev() {
             match self.program[token] {
                 Instruction::JumpToOpen => {
                     stack.push(Instruction::JumpToOpen);
@@ -112,11 +112,11 @@ impl TuringMachine {
                 _ => { /*ignoring*/ }
             }
         }
-        return_token as u128
+        return_token
     }
     ///executes the "JumpToClose" instruction
     fn jump_if_zero(&mut self) {
-        match self.tape[self.pointer as usize] {
+        match self.tape[self.pointer] {
             0 => {
                 let new_counter = self.get_matching_closing_bracket(self.program_counter);
                 self.program_counter = new_counter;
@@ -128,7 +128,7 @@ impl TuringMachine {
     }
     ///executes the "JumpToOpen" Instruction
     fn jump_unless_zero(&mut self) {
-        match self.tape[self.pointer as usize] {
+        match self.tape[self.pointer] {
             0 => {
                 self.program_counter += 1;
             }
@@ -160,11 +160,11 @@ impl TuringMachine {
     }
     ///checks if the turing machine still has instructions left to exeute
     fn has_instructions_left(&self) -> bool {
-        self.program_counter < self.program.len() as u128
+        self.program_counter < self.program.len()
     }
     ///executes the current instruction pointed to by the program counter for our turing machine
     fn perform_next_instruction(&mut self) {
-        match self.program.get(self.program_counter as usize) {
+        match self.program.get(self.program_counter) {
             Some(Instruction::MoveRight) => {
                 self.move_right();
             }
