@@ -1,3 +1,5 @@
+use std::io::Read;
+
 ///Every possible instruction in the brainfuck language
 #[derive(PartialEq, Debug)]
 enum Instruction {
@@ -47,7 +49,7 @@ impl TuringMachine {
         self.pointer -= 1;
         self.program_counter += 1;
     }
-    ///executes the "Increment" instruction on the turing machine, does nothing more than Increment 
+    ///executes the "Increment" instruction on the turing machine, does nothing more than Increment
     ///the value of the current cell being pointed at by the pointer or head
     fn increment(&mut self) {
         self.tape[self.pointer] = self.tape[self.pointer].wrapping_add(1);
@@ -67,7 +69,9 @@ impl TuringMachine {
     }
 
     fn replace(&mut self) {
-        println!("not impl");
+        let mut input: [u8; 1] = [0; 1];
+        std::io::stdin().read_exact(&mut input).unwrap();
+        self.tape[self.pointer] = input[0];
         self.program_counter += 1;
     }
     ///gets the maching closing bracket for the opening bracket indicated by "bracket_to_match".
@@ -138,7 +142,7 @@ impl TuringMachine {
             }
         }
     }
-    
+
     ///turns a string representation of a brainfuck program into a list of instructions
     fn parse(program: &str) -> Vec<Instruction> {
         program
@@ -194,7 +198,7 @@ impl TuringMachine {
             }
         }
     }
-    ///starts executing the program loaded into our turing machine. 
+    ///starts executing the program loaded into our turing machine.
     fn run(&mut self) {
         while self.has_instructions_left() {
             self.perform_next_instruction();
@@ -203,7 +207,8 @@ impl TuringMachine {
 }
 
 fn main() {
-    let input = "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.";
+    let input = ",";
+    //let input = "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.";
     let mut tm = TuringMachine::new(input);
     tm.run();
 }
